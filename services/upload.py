@@ -17,9 +17,9 @@ class UploadService:
 
     def add_to_db(self, **kwargs):
         new_file = tables.Image(
-            file_id=kwargs['file_id'],
-            name=kwargs['name'],
-            tag=kwargs['tag'],
+            artist=kwargs['artist'],
+            song=kwargs['song'],
+            kind=kwargs['kind'],
             size=kwargs['file_size'],
             mime_type=kwargs['file'].content_type,
             modification_time=datetime.now()

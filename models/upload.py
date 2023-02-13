@@ -1,14 +1,19 @@
 import datetime
-
+from enum import Enum
 
 from pydantic import BaseModel
 
 
+class StyleKind(str, Enum):
+    acoustic = 'acoustic'
+    fingerstyle = 'fingerstyle'
+
+
 class FileBase(BaseModel):
     id: int
-    file_id: int
-    name: str
-    tag: str
+    artist: str
+    song: str
+    kind: StyleKind
     size: str
     mime_type: str
     modification_time: str
