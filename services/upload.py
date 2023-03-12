@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 from sqlalchemy.orm import Session
-from fastapi import Depends
-
+from fastapi import Depends, HTTPException
+from starlette import status
 
 from settings import UPLOADED_FILES_PATH
 from database import get_session
@@ -14,6 +14,22 @@ import tables
 class UploadService:
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session
+
+    def _get(self, tab_id: int) -> tables.Image:
+        operation = (
+            self.session
+            .query(tables.Image)
+            .filter_by(
+                id=tab_id,
+            )
+            .first()
+        )
+        if not operation:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        return operation
+
+    def get(self, tab_id: int) -> tables.Image:
+        return self._get(tab_id)
 
     def add_to_db(self, **kwargs):
         new_file = tables.Image(

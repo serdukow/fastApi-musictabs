@@ -1,3 +1,4 @@
+import sqlite3
 from typing import Optional
 
 from fastapi import (
@@ -10,6 +11,7 @@ from fastapi import (
     Form,
 )
 from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
 
 from services.upload import UploadService
 from models.upload import FileBase
@@ -51,13 +53,39 @@ async def publish_tab(
         file=file
     )
 
-    return RedirectResponse('post', status_code=status.HTTP_302_FOUND)
+    return RedirectResponse('/', status_code=status.HTTP_302_FOUND)
 
 
 @router.get("/")
 def home(
-        request: Request
+        request: Request,
+        search: Optional[str] = None
 ):
-    return main.templates.TemplateResponse('home.html', context={'request': request})
+    conn = sqlite3.connect('sqlite.db')
+    cursor = conn.cursor()
+
+    if search:
+        cursor.execute('SELECT id, artist, song, mime_type FROM images WHERE song LIKE ? OR artist LIKE ?',
+                       ('%' + search + '%', '%' + search + '%',))
+    else:
+        cursor.execute('SELECT id, artist, song, mime_type FROM images')
+
+    data = cursor.fetchall()
+    conn.close()
+    return main.templates.TemplateResponse('home.html', context={'request': request, "data": data})
 
 
+@router.get('/home/{tab_id}', response_model=FileBase)
+def get_tab(
+        tab_id: int,
+        service: UploadService = Depends()
+):
+    return service.get(tab_id)
+
+
+@router.get("/latest_data")
+async def get_latest_data():
+    conn = sqlite3.connect('sqlite.db')
+    cursor = conn.cursor()
+    data = cursor.fetchall()
+    return JSONResponse(content=data)

@@ -1,44 +1,25 @@
 {% extends 'layout.html' %}
 
 
-      {% block content %}
+{% block content %}
 
 <form class="d-flex p-4" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-light" type="submit">Search</button>
+  <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search">
+  <button class="btn btn-outline-light" type="submit">Search</button>
 </form>
 
-
 <div class="list-group d-flex w-100 h-100 p-4 mx-auto">
-  <a href="#" class="list-group-item list-group-item-action" aria-current="true">
+  {% for row in data %}
+  <a href="/home/{{ row[0] }}" class="list-group-item list-group-item-action{% if row[0] == current_id %} active{% endif %}">
     <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Song name</h5>
+      <h5 class="mb-1">{{ row[2] }}</h5>
       <small>3 days ago</small>
     </div>
-    <p class="mb-1 d-flex w-100 justify-content-between">Artist name</p>
-    <small>Available file ext.</small>
+    <!-- Add the new columns here -->
+    <p class="mb-auto d-flex w-100 justify-content-between">{{ row[1] }}</p>
+    <small>{{ row[3] }}</small>
   </a>
-  <a href="#" class="list-group-item list-group-item-action">
-
-
-
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Song name 2</h5>
-      <small class="text-muted">2 weeks ago</small>
-    </div>
-    <p class="mb-1 d-flex w-100 justify-content-between">Artist name</p>
-    <small class="text-muted">Available file ext.</small>
-  </a>
-  <a href="#" class="list-group-item list-group-item-action">
-
-
-
-    <div class="d-flex w-100 justify-content-between">
-      <h5 class="mb-1">Song name 3</h5>
-      <small class="text-muted">1 month ago</small>
-    </div>
-    <p class="mb-1 d-flex w-100 justify-content-between">Artist name</p>
-    <small class="text-muted">Available file ext.</small>
-  </a>
+  {% endfor %}
 </div>
+
 {% endblock %}
