@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 from typing import Optional
 
 from fastapi import (
@@ -12,6 +13,7 @@ from fastapi import (
 )
 from fastapi.responses import RedirectResponse
 from fastapi.responses import JSONResponse
+from humanize import naturaltime
 
 from services.upload import UploadService
 from models.upload import FileBase
@@ -61,14 +63,15 @@ def home(
         request: Request,
         search: Optional[str] = None
 ):
+
     conn = sqlite3.connect('sqlite.db')
     cursor = conn.cursor()
 
     if search:
-        cursor.execute('SELECT id, artist, song, mime_type FROM images WHERE song LIKE ? OR artist LIKE ?',
+        cursor.execute('SELECT id, artist, song, kind, size, mime_type, modification_time FROM images WHERE song LIKE ? OR artist LIKE ?',
                        ('%' + search + '%', '%' + search + '%',))
     else:
-        cursor.execute('SELECT id, artist, song, mime_type FROM images')
+        cursor.execute('SELECT id, artist, song, kind, size, mime_type, modification_time FROM images')
 
     data = cursor.fetchall()
     conn.close()
@@ -89,3 +92,22 @@ async def get_latest_data():
     cursor = conn.cursor()
     data = cursor.fetchall()
     return JSONResponse(content=data)
+
+
+@router.post('/delete/{tab_id}')
+def delete_row(
+        tab_id: int,
+        service: UploadService = Depends()
+):
+    service.delete(tab_id)
+    return RedirectResponse('/', status_code=status.HTTP_302_FOUND)
+
+
+last_modified_time = datetime.now()
+
+
+@router.get("/api/get-modification-time")
+async def get_modification_time():
+    global last_modified_time
+    time_ago = naturaltime(datetime.now() - last_modified_time)
+    return time_ago

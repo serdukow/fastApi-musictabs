@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 from starlette import status
 
+
 from settings import UPLOADED_FILES_PATH
 from database import get_session
 import tables
@@ -42,7 +43,14 @@ class UploadService:
         )
         self.session.add(new_file)
         self.session.commit()
+        global last_modified_time
+        last_modified_time = datetime.now()
         return new_file
+
+    def delete(self, tab_id: int):
+        file = self._get(tab_id)
+        self.session.delete(file)
+        self.session.commit()
 
     def get_file_size(filename, path: str = None):
         file_path = f'{UPLOADED_FILES_PATH}{filename}'
@@ -67,16 +75,5 @@ class UploadService:
             file_content = await file.read()
             uploaded_file.write(file_content)
             uploaded_file.close()
-
-
-
-
-
-
-
-
-
-
-
 
 

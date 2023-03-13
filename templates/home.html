@@ -1,7 +1,22 @@
 {% extends 'layout.html' %}
 
 
+
+
 {% block content %}
+
+<script>
+$(document).ready(function() {
+  refreshModificationTime(); // call this function once when the page loads
+});
+
+function refreshModificationTime() {
+  $.get('/api/get-modification-time', function(data) {
+    $('#modification-time').text('Modified ' + data);
+  });
+  setTimeout(refreshModificationTime, 10000); // call this function again after 10 seconds
+}
+</script>
 
 <form class="d-flex p-4" role="search">
   <input class="form-control me-2" type="search" name="search" placeholder="Search" aria-label="Search">
@@ -13,13 +28,22 @@
   <a href="/home/{{ row[0] }}" class="list-group-item list-group-item-action{% if row[0] == current_id %} active{% endif %}">
     <div class="d-flex w-100 justify-content-between">
       <h5 class="mb-1">{{ row[2] }}</h5>
-      <small>3 days ago</small>
+      <small id="modification-time"></small>
     </div>
     <!-- Add the new columns here -->
     <p class="mb-auto d-flex w-100 justify-content-between">{{ row[1] }}</p>
-    <small>{{ row[3] }}</small>
-  </a>
+    <!--<small>{{ row[5] }}</small>   file format name -->
+    <form action="/delete/{{ row[0] }}" method="post">
+      <input type="hidden" name="id" value="{{ row[0] }}">
+      <button type="submit" class="btn btn-outline-secondary" formmethod="post">Delete</button>
+    </form>
+    </a>
   {% endfor %}
-</div>
+    </div>
+
+
 
 {% endblock %}
+
+
+
